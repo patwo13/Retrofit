@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
         //getPosts();
-        getComments();
+        //getComments();
+        createPost();
     }
 
     private void getPosts(){
@@ -114,6 +115,45 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Comment>> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void createPost(){
+        Post post = new Post(23,"new Title", "New Text");
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("userId", "25");
+        parameters.put("title", "New Title");
+
+
+        //Call<Post> call = jsonPlaceHolderApi.createPosts(post);
+        //Call<Post> call = jsonPlaceHolderApi.createPosts(23, "new Title", "New Text");
+        Call<Post> call = jsonPlaceHolderApi.createPosts(parameters);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if(!response.isSuccessful()){ //status 200/300
+                    textViewResult.setText("Code : "+response.code());
+                    return;
+                }
+
+                Post postResponse = response.body();
+
+                String content ="";
+                content += "Code : " +response.code() + "\n"; //get status code as jsonplaceholder will just fake post request
+                content += "ID: "+postResponse.getId() + "\n";
+                content += "User ID: "+postResponse.getUserId() + "\n";
+                content += "Title: "+postResponse.getTitle() + "\n";
+                content += "Text: "+postResponse.getText() + "\n\n";
+
+                textViewResult.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
                 textViewResult.setText(t.getMessage());
             }
         });
