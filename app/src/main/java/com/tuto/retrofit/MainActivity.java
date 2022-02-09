@@ -41,7 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
         //getPosts();
         //getComments();
-        createPost();
+        //createPost();
+        //updatePost();
+        deletePost();
     }
 
     private void getPosts(){
@@ -154,6 +156,55 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Post> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void updatePost(){
+        Post post = new Post(12, null, "new text");
+
+        //Call<Post> call = jsonPlaceHolderApi.putPost(5, post);
+        Call<Post> call = jsonPlaceHolderApi.patchPost(5, post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if(!response.isSuccessful()){ //status 200/300
+                    textViewResult.setText("Code : "+response.code());
+                    return;
+                }
+
+                Post postResponse = response.body();
+
+                String content ="";
+                content += "Code : " +response.code() + "\n"; //get status code as jsonplaceholder will just fake post request
+                content += "ID: "+postResponse.getId() + "\n";
+                content += "User ID: "+postResponse.getUserId() + "\n";
+                content += "Title: "+postResponse.getTitle() + "\n";
+                content += "Text: "+postResponse.getText() + "\n\n";
+
+                textViewResult.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                textViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void deletePost(){
+        Call<Void> call = jsonPlaceHolderApi.deletePost(5);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                textViewResult.setText("Code : "+response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
                 textViewResult.setText(t.getMessage());
             }
         });
